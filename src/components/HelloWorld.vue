@@ -1,6 +1,6 @@
 <template>
   <section>
-    <form action class="form" autocomplete="off" method="post">
+    <form class="form" autocomplete="off" method="get" name="Loginform" enctype ref="Loginform">
       <div class="logo_box">
         <label for="logo" class="logo_label label">企业logo</label>
         <input
@@ -8,23 +8,25 @@
           v-show="false"
           type="file"
           accept="image/*"
-          @change="tirggerFile($event,ref)"
+          @change="getFile($event)"
           ref="input_one"
+          name="logo"
         />
         <div class="logo_one" @click="openImg()">
           <i class="fs-across"></i>
           <i class="fs-upright"></i>
           <img v-if="imgUrl!=''" :src="imgUrl" class="img_one" />
         </div>
-        <!-- <input
+        <input
           id="logo"
           v-show="false"
           type="file"
           accept="image/*"
-          @change="tirggerFiletwo($event,ref)"
+          @change="getFiletwo($event)"
           ref="input_two"
-        />-->
-        <div class="logo_two" @click="openImg()">
+          name="logo-big"
+        />
+        <div class="logo_two" @click="openImgtwo()">
           <i class="fs-across_two"></i>
           <i class="fs-upright_two"></i>
           <img v-if="imgUrltwo!=''" :src="imgUrltwo" class="img_one" />
@@ -51,100 +53,122 @@
           </p>
         </div>
       </div>
-      <table>
-        <tr>
-          <label for="name" class="label">企业名称</label>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            ref="name"
-            class="name input"
-            placeholder="请输入企业名称"
-            @blur="checkout($event,namereg)"
-            @input="changeValue($event)"
-          />
-          <span class="err">*企业名称不能为空</span>
-          <span class="err">*请输入正确的企业名称</span>
-        </tr>
-        <tr class="tr">
-          <label for="nature" class="label">企业性质</label>
-          <select name="nature" id="nature" class="nature select">
-            <option value="-1" disabled selected>请选择企业性质</option>
-            <option value="0">国有企业</option>
-            <option value="1">私有企业</option>
-            <option value="2">外资企业</option>
-            <option value="3">合资企业</option>
-          </select>
-          <i class="fa fa-angle-down right"></i>
-        </tr>
-        <tr class="tr">
-          <label for="scale" class="label">企业规模</label>
-          <select name="scale" id="scale" class="scale select">
-            <option value="-1" disabled selected>请选择企业规模</option>
-            <option value="0">0-1百人</option>
-            <option value="1">1百-5百人</option>
-            <option value="2">5百-1千人</option>
-            <option value="3">1千-2千人</option>
-            <option value="2">2千-5千人</option>
-            <option value="3">5千人++</option>
-          </select>
-          <i class="fa fa-angle-down right"></i>
-        </tr>
-        <tr class="tr">
-          <label for="industry" class="label">所属行业</label>
-          <select name="industry" id="industry" class="industry select" placeholder="请选择行业">
-            <option value="-1" disabled selected>请选择行业</option>
-            <option value="0">制造业</option>
-            <option value="1">加工业</option>
-            <option value="2">服务业</option>
-            <option value="3">工商业</option>
-            <option value="4">金融业</option>
-            <option value="5">其他</option>
-          </select>
-          <i class="fa fa-angle-down right"></i>
-        </tr>
-        <tr>
-          <label for="url" class="label">企业网址</label>
-          <input
-            type="text"
-            name="url"
-            id="url"
-            class="url input"
-            placeholder="https://"
-            @blur="checkout($event,urlreg)"
-            @input="changeValue($event)"
-          />
-          <span class="err">*企业网址不能为空</span>
-          <span class="err">*请输入正确的企业网址</span>
-        </tr>
-        <tr>
-          <label for="address" class="label">企业地址</label>
-          <input
-            type="text"
-            name="address"
-            id="address"
-            class="adress input"
-            placeholder="请输入企业地址"
-            @blur="checkout($event,addressreg)"
-            @input="changeValue($event)"
-          />
-          <span class="err">*企业地址不能为空</span>
-          <span class="err">*请输入正确的企业地址</span>
-        </tr>
-      </table>
+
+      <div>
+        <label for="name" class="label">企业名称</label>
+        <input
+          type="text"
+          name="name"
+          id="name"
+          class="name input"
+          placeholder="请输入企业名称"
+          @blur="checkout($event,namereg)"
+          @input="changeValue($event)"
+        />
+        <span class="err">*企业名称不能为空</span>
+        <span class="err">*请输入正确的企业名称为中文</span>
+      </div>
+      <div class="select_box">
+        <label for="nature" class="label">企业性质</label>
+        <select
+          name="property"
+          id="nature"
+          class="nature select"
+          @blur="notNaN($event)"
+          @change="valueChange($event)"
+        >
+          <option value="-1" disabled selected>请选择企业性质</option>
+          <option value="0">国有企业</option>
+          <option value="1">私有企业</option>
+          <option value="2">外资企业</option>
+          <option value="3">合资企业</option>
+        </select>
+        <span class="err">*请选择企业性质</span>
+        <i class="fa fa-angle-down right"></i>
+      </div>
+      <div class="select_box">
+        <label for="scale" class="label">企业规模</label>
+        <select
+          name="scale"
+          id="scale"
+          class="scale select"
+          @blur="notNaN($event)"
+          @change="valueChange($event)"
+        >
+          <option value="-1" disabled selected>请选择企业规模</option>
+          <option value="0">0-1百人</option>
+          <option value="1">1百-5百人</option>
+          <option value="2">5百-1千人</option>
+          <option value="3">1千-2千人</option>
+          <option value="2">2千-5千人</option>
+          <option value="3">5千人++</option>
+        </select>
+        <span class="err">*请选择企业规模</span>
+        <i class="fa fa-angle-down right"></i>
+      </div>
+      <div class="select_box">
+        <label for="industry" class="label">所属行业</label>
+        <select
+          name="industry"
+          id="industry"
+          class="industry select"
+          placeholder="请选择行业"
+          ref="industry"
+          @blur="notNaN($event)"
+          @change="valueChange($event)"
+        >
+          <option value="-1" disabled selected>请选择行业</option>
+          <option value="0">制造业</option>
+          <option value="1">加工业</option>
+          <option value="2">服务业</option>
+          <option value="3">工商业</option>
+          <option value="4">金融业</option>
+          <option value="5">其他</option>
+        </select>
+        <span class="err">*请选择行业</span>
+        <i class="fa fa-angle-down right"></i>
+      </div>
+      <div>
+        <label for="url" class="label">企业网址</label>
+        <input
+          type="text"
+          name="url"
+          id="url"
+          class="url input"
+          placeholder="https://"
+          @blur="checkout($event,urlreg)"
+          @input="changeValue($event)"
+        />
+        <span class="err">*企业网址不能为空</span>
+        <span class="err">*请输入正确的企业网址</span>
+      </div>
+      <div>
+        <label for="address" class="label">企业地址</label>
+        <input
+          type="text"
+          name="address"
+          id="address"
+          class="adress input"
+          placeholder="请输入企业地址"
+          @blur="checkout($event,addressreg)"
+          @input="changeValue($event)"
+        />
+        <span class="err">*企业地址不能为空</span>
+        <span class="err">*请输入正确的企业地址</span>
+      </div>
+
       <div class="plus_tag_box">
         <label for="lightspot" class="label">企业亮点</label>
         <input
           type="text"
-          name="lightspot"
+          name="feature"
           id="lightspot"
           class="lightspot input"
           v-model="tag"
           ref="tag_input"
         />
-        <span class="err">*企业亮点不能为空</span>
-        <!-- <span class="err">*请输入正确的企业亮点</span> -->
+        <span class="err" ref="lights">*请输入至少一条企业亮点</span>
+        <span class="err" ref="light">*最多输入五条企业亮点</span>
         <span class="plus" @click="addTags">
           <i class="fa fa-plus"></i>
         </span>
@@ -154,6 +178,8 @@
           </ul>
         </div>
       </div>
+
+      <span class="sub" @click="sumbit">提交</span>
     </form>
   </section>
 </template>
@@ -177,9 +203,17 @@ export default {
     };
   },
   methods: {
-    tirggerFile: function(event) {
+    // 获取logo
+    getFile: function(event) {
       let file = event.target.files[0];
       let url = "";
+      console.log(file);
+      let size = Math.floor(file.size / 1024);
+      console.log(size);
+      if (size > 2048) {
+        alert("图片的大小不能超过2M");
+        return false;
+      }
       var reader = new FileReader();
       reader.readAsDataURL(file);
       let that = this;
@@ -188,9 +222,17 @@ export default {
         that.imgUrl = "data:image/png;base64," + url;
       };
     },
-    tirggerFiletwo: function(event) {
-      let file = event.target.files[1];
+
+    // 获取logo-big
+    getFiletwo: function(event) {
+      let file = event.target.files[0];
       let url = "";
+      let size = Math.floor(file.size / 1024);
+      console.log(size);
+      if (size > 2048) {
+        alert("图片的大小不能超过2M");
+        return false;
+      }
       var reader = new FileReader();
       reader.readAsDataURL(file);
       let that = this;
@@ -201,6 +243,8 @@ export default {
     },
     openImg() {
       this.$refs.input_one.click();
+    },
+    openImgtwo() {
       this.$refs.input_two.click();
     },
 
@@ -209,23 +253,47 @@ export default {
       console.log(event.currentTarget);
       var value = event.currentTarget.value;
       console.log(value);
-      if (value == "") {
+      if (value === "") {
         console.log(event.currentTarget.nextElementSibling);
+        event.currentTarget.style.border = "1px solid red";
         event.currentTarget.nextElementSibling.style.display = "inline-block";
       } else if (!reg.test(value)) {
+        event.currentTarget.style.border = "1px solid red";
         event.currentTarget.nextElementSibling.nextElementSibling.style.display =
           "inline-block";
       }
     },
     // 监听企业名称，企业地址，企业网址的值改变，取消提示错误
     changeValue(event) {
+      event.currentTarget.style.border = "1px solid #bbbbbb";
       event.currentTarget.nextElementSibling.style.display = "none";
       event.currentTarget.nextElementSibling.nextElementSibling.style.display =
         "none";
     },
+    // 监听select值的变化
+    notNaN(event) {
+      console.log(event);
+      console.log(event.currentTarget.value);
+      let val = event.currentTarget.value;
+      console.log(event.currentTarget.nextElementSibling);
+      if (val === "-1") {
+        event.currentTarget.style.border = "1px solid red";
+        event.currentTarget.nextElementSibling.style.display = "inline-block";
+      }
+    },
+    // 监听select值的变化，取消提示错误
+
+    valueChange(event) {
+      let val = event.currentTarget.value;
+      if (val !== "-1") {
+        event.currentTarget.style.border = "1px solid #bbbbbb";
+        event.currentTarget.nextElementSibling.style.display = "none";
+      }
+    },
     // 添加企业亮点Tags
     addTags() {
       if (!this.tag || this.tag.trim() == "") {
+        // this.$refs.light.style.display = "inline-block";
         return false;
       }
       if (this.taglist.length > 0) {
@@ -236,11 +304,7 @@ export default {
         }
       }
       if (this.taglist.length >= 5) {
-        this.taglist.push({
-          tag: this.tag
-        });
-        this.taglist.splice(0, 1);
-        this.tag = "";
+        this.$refs.light.style.display = "inline-block";
       } else {
         this.taglist.push({
           tag: this.tag
@@ -251,6 +315,25 @@ export default {
     // 删除企业亮点Tags
     delTags(index) {
       this.taglist.splice(index, 1);
+    },
+
+    // 提交form表单
+    sumbit() {
+      let data = new FormData(this.$refs.Loginform);
+      console.log(this.$refs.Loginform);
+      console.log(data);
+      if (data !== "") {
+        this.axios({
+          url: "http://118.24.210.103:8888/api/enterprise",
+          method: "post",
+          data: data,
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }).then(res => {
+          console.log(res);
+        });
+      }
     }
   }
 };
@@ -267,7 +350,7 @@ select {
   background-color: transparent;
 }
 section {
-  height: 100vh;
+  // height: 100vh;
   background-color: #f4f4f4;
 }
 .form {
@@ -276,7 +359,7 @@ section {
   padding: 65px;
   font-size: 18px;
   background-color: #ffffff;
-  border: 1px solid black;
+  // border: 1px solid black;
 }
 .label {
   margin-right: 20px;
@@ -392,27 +475,31 @@ section {
 .select {
   color: #000000;
 }
-.right {
+.select_box {
   position: relative;
+}
+.right {
+  position: absolute;
   font-size: 18px;
-  right: 20px;
+  top: 25px;
+  left: 600px;
 }
 .plus_tag_box {
   position: relative;
 }
 .plus {
-  width: 60px;
-  height: 60px;
+  width: 58px;
+  height: 56px;
   font-size: 16px;
-  line-height: 60px;
   text-align: center;
   line-height: 60px;
   background-color: #f8f8f8;
   cursor: pointer;
   position: absolute;
+  top: 2px;
   left: 567px;
   box-sizing: border-box;
-  border: 1px solid #bbbbbb;
+  border-left: 1px solid #bbbbbb;
 }
 
 .taglist {
@@ -431,5 +518,16 @@ section {
   font-size: 20px;
   margin: 0 10px 0 0;
   cursor: pointer;
+}
+.sub {
+  display: inline-block;
+  width: 120px;
+  height: 60px;
+  color: #ffffff;
+  text-align: center;
+  line-height: 60px;
+  border-radius: 12px;
+  margin-left: 120px;
+  background-color: green;
 }
 </style>
