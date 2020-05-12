@@ -159,26 +159,31 @@
 
       <div class="plus_tag_box">
         <label for="lightspot" class="label">企业亮点</label>
-        <input
-          type="text"
-          name="feature"
-          id="lightspot"
-          class="lightspot input"
-          v-model="tag"
-          ref="tag_input"
-        />
-        <span class="err" ref="lights">*请输入至少一条企业亮点</span>
-        <span class="err" ref="light">*最多输入五条企业亮点</span>
+        <div class="tag_box" ref="tag_input_box">
+          <ul class="taglist" ref="taglist">
+            <li v-for="(tag,index) in taglist" :key="index" ref="li">
+              {{tag.tag}}
+              <span class="del_btn" v-on:click="delTags(index)">x</span>
+            </li>
+          </ul>
+          <input
+            type="text"
+            name="feature"
+            id="lightspot"
+            class="lightspot"
+            v-model="tag"
+            @input="notErr"
+            @blur="err"
+            ref="tag_input"
+          />
+        </div>
+
+        <span class="err" ref="light">*请至少输入一条企业亮点</span>
+        <span class="err" ref="lights">*最多输入五条企业亮点</span>
         <span class="plus" @click="addTags">
           <i class="fa fa-plus"></i>
         </span>
-        <div class="tag_box">
-          <ul class="taglist" ref="taglist">
-            <li v-for="(tag,index) in taglist" :key="index" v-on:click="delTags(index)">{{tag.tag}}</li>
-          </ul>
-        </div>
       </div>
-
       <span class="sub" @click="sumbit">提交</span>
     </form>
   </section>
@@ -195,11 +200,11 @@ export default {
       namereg: /^[\u2E80-\u9FFF]+$/,
       addressreg: /^[\u4e00-\u9fa50-9a-zA-Z #]+$/,
       urlreg: /^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+/,
-      isSelectFile: false,
       imgUrl: "",
       imgUrltwo: "",
       tag: "",
-      taglist: []
+      taglist: [],
+      label_span: ""
     };
   },
   methods: {
@@ -292,20 +297,11 @@ export default {
     },
     // 添加企业亮点Tags
     addTags() {
+      // console.log( this.$refs.tag_input)
       if (!this.tag || this.tag.trim() == "") {
-        // this.$refs.light.style.display = "inline-block";
         return false;
       }
-      if (this.taglist.length > 0) {
-        for (var i in this.taglist) {
-          if (this.taglist[i].tag == this.tag) {
-            return false;
-          }
-        }
-      }
-      if (this.taglist.length >= 5) {
-        this.$refs.light.style.display = "inline-block";
-      } else {
+      if (this.taglist.length < 5) {
         this.taglist.push({
           tag: this.tag
         });
@@ -315,6 +311,41 @@ export default {
     // 删除企业亮点Tags
     delTags(index) {
       this.taglist.splice(index, 1);
+      this.$refs.lights.style.display = "none";
+      this.$refs.tag_input_box.style.border = "1px solid #bbbbbb";
+    },
+    // 判断企业亮点的数量，至少有一条且最多有五条
+    err(event) {
+      console.log(event);
+      // console.log(this.taglist.length);
+      console.log(event.currentTarget.value);
+      if (this.taglist.length === 5) {
+        this.$refs.lights.style.display = "inline-block";
+        this.$refs.tag_input_box.style.border = "1px solid red";
+      } else if (
+        event.currentTarget.value === "" &&
+        this.taglist.length === 0
+      ) {
+        this.$refs.light.style.display = "inline-block";
+        this.$refs.tag_input_box.style.border = "1px solid red";
+      }
+    },
+
+    notErr(event) {
+      console.log(event);
+      // console.log(this.taglist.length);
+      // console.log(event.currentTarget);
+      this.$refs.light.style.display = "none";
+      this.$refs.tag_input_box.style.border = "1px solid #bbbbbb";
+      this.$refs.lights.style.display = "none";
+      this.$refs.tag_input_box.style.border = "1px solid #bbbbbb";
+      if (this.taglist.length < 5) {
+        this.$refs.lights.style.display = "none";
+        this.$refs.tag_input_box.style.border = "1px solid #bbbbbb";
+      } else if (this.taglist.length !== 0) {
+        this.$refs.light.style.display = "none";
+        this.$refs.tag_input_box.style.border = "1px solid #bbbbbb";
+      }
     },
 
     // 提交form表单
@@ -322,6 +353,7 @@ export default {
       let data = new FormData(this.$refs.Loginform);
       console.log(this.$refs.Loginform);
       console.log(data);
+
       if (data !== "") {
         this.axios({
           url: "http://118.24.210.103:8888/api/enterprise",
@@ -486,10 +518,13 @@ section {
 }
 .plus_tag_box {
   position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
 .plus {
   width: 58px;
-  height: 56px;
+  height: 59px;
   font-size: 16px;
   text-align: center;
   line-height: 60px;
@@ -497,27 +532,61 @@ section {
   cursor: pointer;
   position: absolute;
   top: 2px;
-  left: 567px;
+  left: 570px;
   box-sizing: border-box;
   border-left: 1px solid #bbbbbb;
 }
-
+.lightspot {
+  margin-top: 1px;
+  height: 58px;
+  border: none;
+  font-size: 18px;
+  outline: none;
+  color: #bbbbbb;
+  box-sizing: border-box;
+}
+.lightspot:focus {
+  max-width: 100%;
+  width: auto;
+  margin-top: 1px;
+  height: 58px;
+  border: none;
+  font-size: 18px;
+  outline: none;
+  color: #bbbbbb;
+  box-sizing: border-box;
+}
+.tag_box {
+  width: 535px;
+  height: 60px;
+  display: flex;
+  border: 1px solid #bbbbbb;
+}
 .taglist {
-  position: absolute;
-  top: 6px;
-  left: 98px;
+  margin-top: 5px;
+  margin-left: 15px;
 }
 .taglist li {
   float: left;
   height: 40px;
   line-height: 40px;
-  padding: 3px 10px;
+  padding: 5px 15px;
   background-color: #f1f1f1;
   border-radius: 5px;
   color: #000000;
   font-size: 20px;
   margin: 0 10px 0 0;
   cursor: pointer;
+  position: relative;
+}
+.del_btn {
+  display: inline-block;
+  font-size: 16px;
+  color: gray;
+  font-weight: bold;
+  position: absolute;
+  right: 4px;
+  top: -11px;
 }
 .sub {
   display: inline-block;
@@ -528,6 +597,7 @@ section {
   line-height: 60px;
   border-radius: 12px;
   margin-left: 120px;
+  margin-top: 40px;
   background-color: green;
 }
 </style>
