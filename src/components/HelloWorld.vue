@@ -204,7 +204,6 @@ export default {
       imgUrltwo: "",
       tag: "",
       taglist: [],
-      label_span: ""
     };
   },
   methods: {
